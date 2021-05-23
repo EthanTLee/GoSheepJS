@@ -28,6 +28,7 @@ function preload () {
     this.load.image('tile', 'assets/redograss.png');
     this.load.image('selectTile', 'assets/redograss_sel.png')
     this.load.image('whiteSheep', 'assets/white_sheep.png')
+    this.load.image('blackSheep', 'assets/black_sheep.png')
     console.log("preload finished");
 }
 
@@ -54,7 +55,7 @@ function create () {
     this.grass_select_tile.create();
 
 
-    this.game_sheeps = new sheeps('whiteSheep', this.game_grid_size, this);
+    this.game_sheeps = new sheeps(this.game_grid_size, this);
     this.game_sheeps.create();
 
     this.cam = this.cameras.main;
@@ -66,6 +67,7 @@ function create () {
     this.up_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.down_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
     this.w_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+    this.b_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B)
     this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
 
 }
@@ -85,7 +87,10 @@ function update () {
         this.grass_select_tile.grid_pos.x -= 1
     }
     if (Phaser.Input.Keyboard.JustDown(this.w_key)) {
-        this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos);
+        this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos, 'whiteSheep');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.b_key)) {
+        this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos, 'blackSheep');
     }
     if (Phaser.Input.Keyboard.JustDown(this.r_key)) {
         this.game_sheeps.remove_sheep(this.grass_select_tile.grid_pos);
@@ -196,8 +201,7 @@ class select_tile {
 }
 
 class sheeps {
-    constructor(spritekey, grid_size, game) {
-        this.spritekey = spritekey;
+    constructor(grid_size, game) {
         this.grid_size = grid_size;
         this.game = game;
         this.sprite_grid;
@@ -220,7 +224,7 @@ class sheeps {
         this.sprite_grid[grid_pos.y][grid_pos.x] = this.game.add.sprite(
             pixel_pos.x-2,
             pixel_pos.y-4,
-            this.spritekey
+            spritekey
         );
         this.sprite_grid[grid_pos.y][grid_pos.x].setDepth(grid_pos.y);
 
