@@ -6,8 +6,8 @@ import Phaser from 'phaser';
 
 var config = {
     type: Phaser.Auto,
-    width: 800,
-    height: 600,
+    width: 200,
+    height: 150,
     pixelArt: true,
     zoom: 4,
     
@@ -34,7 +34,7 @@ function preload () {
 function create () {   
     
     
-    this.add.image(400, 300, 'sky');
+    this.add.image(100, 75, 'sky');
 
 
     this.game_grid_size = new grid_size(3,3);
@@ -255,8 +255,8 @@ function create_grid(width, height) {
 function gridToPixel(grid_pos) {
     
     let ret = new pixel_pos(
-        20+(16*grid_pos.x)+(16*grid_pos.y), 
-        20-(8*grid_pos.x)+(8*grid_pos.y)
+        30+(16*grid_pos.x)+(16*grid_pos.y), 
+        30-(8*grid_pos.x)+(8*grid_pos.y)
     );
 
     return ret;
