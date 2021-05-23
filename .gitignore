@@ -1,0 +1,3 @@
+node_modules/
+dist/index_bundle.js
+dist/index.html
