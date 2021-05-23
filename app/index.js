@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import Phaser from 'phaser';
 
 
-
 var config = {
     type: Phaser.Auto,
     width: 200,
@@ -24,6 +23,10 @@ var game = new Phaser.Game(config);
 
 
 function preload () {
+
+    this.naks = new Nakama();
+    this.naks.initiate();
+
     this.load.image('sky','assets/sky.png');
     this.load.image('tile', 'assets/redograss.png');
     this.load.image('selectTile', 'assets/redograss_sel.png')
@@ -32,17 +35,17 @@ function preload () {
     console.log("preload finished");
 }
 
+
 function create () {   
     
-    
-    this.bg = this.add.image(100, 75, 'sky');
-    this.bg.setDepth(-600)
-
-
     this.game_grid_size = new grid_size(3,3);
 
 
-    this.grass_tiles = new tiles('tile', this.game_grid_size, this)
+    this.bg = this.add.image(100, 75, 'sky');
+    this.bg.setDepth(-600)
+
+    
+    this.grass_tiles = new tiles('tile', this.game_grid_size, this);
     this.grass_tiles.create();
 
 
@@ -58,8 +61,9 @@ function create () {
     this.game_sheeps = new sheeps(this.game_grid_size, this);
     this.game_sheeps.create();
 
+
     this.cam = this.cameras.main;
-    
+
 
     this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.right_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
@@ -71,6 +75,7 @@ function create () {
     this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
 
 }
+
 
 function update () {
 
@@ -96,32 +101,9 @@ function update () {
         this.game_sheeps.remove_sheep(this.grass_select_tile.grid_pos);
     }
 
-
     this.grass_select_tile.update()
-
 }
 
-class pixel_pos {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class grid_pos {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
-
-class grid_size {
-    constructor(width, height) {
-        this.w = width;
-        this.h = height;
-    }
-}
 
 class tiles {
     constructor(spritekey, grid_size, game) {
@@ -129,9 +111,7 @@ class tiles {
         this.grid_size = grid_size;
         this.spritekey = spritekey;
         this.sprites;
-
     }
-
     create() {
 
         this.sprites = this.game.add.group();
@@ -143,12 +123,10 @@ class tiles {
                 this.sprites.create(tile_pixel_pos.x,tile_pixel_pos.y, this.spritekey);
             }
         }
-
         this.sprites.setDepth(-500)
-
     }
-
 }
+
 
 class select_tile {
     constructor(spritekey, initial_grid_pos, grid_size, game) {
@@ -158,9 +136,7 @@ class select_tile {
         this.game = game;
         this.sprite;
         this.pixel_pos;
-
     }
-
     create() {
         this.sprite = this.game.add.sprite(
             gridToPixel(this.grid_pos).x,
@@ -169,7 +145,6 @@ class select_tile {
         )
         this.sprite.setDepth(-400);
     }
-
     update() {
         this.grid_pos = this.enforce_boundaries(this.grid_pos, this.grid_size);
         this.pixel_pos = gridToPixel(this.grid_pos);
@@ -177,28 +152,23 @@ class select_tile {
         this.sprite.x = this.pixel_pos.x;
         this.sprite.y = this.pixel_pos.y;
     }
-
     enforce_boundaries(gridpt, gridsize) {
         if (gridpt.x < 0) {
             gridpt.x = 0;
         }
-    
         if (gridpt.y < 0) {
             gridpt.y = 0;    
         }
-    
         if (gridpt.x > gridsize.w - 1) {
             gridpt.x = gridsize.w - 1;
         }
-    
         if (gridpt.y > gridsize.h - 1) {
             gridpt.y = gridsize.h - 1;
         }
-    
         return gridpt;
     }
-
 }
+
 
 class sheeps {
     constructor(grid_size, game) {
@@ -207,13 +177,10 @@ class sheeps {
         this.sprite_grid;
         this.position_grid;
     }
-
     create() {
-        this.sprite_grid = create_grid(this.grid_size.w, this.grid_size.h);
-        this.position_grid = create_grid(this.grid_size.w, this.grid_size.h);    
+        this.sprite_grid = create_grid(this.grid_size);
+        this.position_grid = create_grid(this.grid_size);    
     }
-
-
     place_sheep(grid_pos, spritekey) {
         if (this.position_grid[grid_pos.y][grid_pos.x] != 'empty') {
             return;
@@ -229,54 +196,13 @@ class sheeps {
         this.sprite_grid[grid_pos.y][grid_pos.x].setDepth(grid_pos.y);
 
     }
-
     remove_sheep(grid_pos) {
         if (this.position_grid[grid_pos.y][grid_pos.x] == 'empty') {
             return;
         }
-
         this.position_grid[grid_pos.y][grid_pos.x] = 'empty';
         this.sprite_grid[grid_pos.y][grid_pos.x].destroy();   
-
     }
-}
-
-
-
-
-
-function remove_all_from_group(group) {
-    for (let i = 0; i < group.total; i++) {
-        group.remove(group.children[i]);
-    }
-    return group;
-}
-
-function group_from_grid(grid) {
-
-    let group = this.add.group()
-    for (let j = 0; j < grid.length; j++) {
-        for (let i = 0; i < grid[j].length; i++) {
-            let gridpos = {x: i, y: j};
-            let pixelpos = gridToPixel(gridpos);
-            group.create(pixelpos['x'], pixelpos['y'], grid[j][i]);
-        }            
-    }
-
-    return group;
-}
-
-function create_grid(width, height) {
-    let grid = [];
-
-    for (let j = 0; j < height; j++) {
-        grid.push([])
-        for (let i = 0; i < width; i++) {
-            grid[j].push("empty"); 
-        }            
-    }
-
-    return grid;
 }
 
 
@@ -290,6 +216,7 @@ function gridToPixel(grid_pos) {
     return ret;
 }
 
+/*
 function pixelToGrid(pixelpt) {
 
     let gridPos = {
@@ -299,7 +226,43 @@ function pixelToGrid(pixelpt) {
 
     return gridPos;
 }
+*/
 
+
+function create_grid(grid_size) {
+    let grid = [];
+
+    for (let j = 0; j < grid_size.h; j++) {
+        grid.push([])
+        for (let i = 0; i < grid_size.w; i++) {
+            grid[j].push("empty"); 
+        }            
+    }
+    return grid;
+}
+
+
+class grid_size {
+    constructor(width, height) {
+        this.w = width;
+        this.h = height;
+    }
+}
+
+class pixel_pos {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+
+class grid_pos {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
 
 
 
@@ -354,14 +317,10 @@ class Nakama {
         this.useSSL = false;
         this.verboseLog = false
         this.client = new Client("defaultkey", "127.0.0.1", "7350", this.useSSL);
-        
         this.session;
-
         this.socket;
         this.match;
-
     }
-
     initiate = async() => {
         const create = true;    
         const username = uuidv4();    
@@ -369,7 +328,6 @@ class Nakama {
         console.log("session user id: ", this.session.user_id);
         this.socket = this.client.createSocket(this.useSSL, this.verboseLog);
 
-        
         await this.socket.connect(this.session);
         console.log("socket connected");
     }
