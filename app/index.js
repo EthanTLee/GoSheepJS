@@ -34,7 +34,8 @@ function preload () {
 function create () {   
     
     
-    this.add.image(100, 75, 'sky');
+    this.bg = this.add.image(100, 75, 'sky');
+    this.bg.setDepth(-600)
 
 
     this.game_grid_size = new grid_size(3,3);
@@ -64,7 +65,8 @@ function create () {
     this.left_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
     this.up_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.down_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-
+    this.w_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+    this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
 
 }
 
@@ -82,8 +84,11 @@ function update () {
     if (Phaser.Input.Keyboard.JustDown(this.down_arrow)) {
         this.grass_select_tile.grid_pos.x -= 1
     }
-    if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+    if (Phaser.Input.Keyboard.JustDown(this.w_key)) {
         this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.r_key)) {
+        this.game_sheeps.remove_sheep(this.grass_select_tile.grid_pos);
     }
 
 
@@ -134,6 +139,8 @@ class tiles {
             }
         }
 
+        this.sprites.setDepth(-500)
+
     }
 
 }
@@ -155,6 +162,7 @@ class select_tile {
             gridToPixel(this.grid_pos).y,
             this.spritekey
         )
+        this.sprite.setDepth(-400);
     }
 
     update() {
@@ -192,24 +200,40 @@ class sheeps {
         this.spritekey = spritekey;
         this.grid_size = grid_size;
         this.game = game;
-        this.sprites;
-        this.grid;
+        this.sprite_grid;
+        this.position_grid;
     }
 
     create() {
-        this.sprites = this.game.add.group();
-        this.grid = create_grid(this.grid_size.w, this.grid_size.h);    
+        this.sprite_grid = create_grid(this.grid_size.w, this.grid_size.h);
+        this.position_grid = create_grid(this.grid_size.w, this.grid_size.h);    
     }
 
 
-    place_sheep(grid_pos) {
+    place_sheep(grid_pos, spritekey) {
+        if (this.position_grid[grid_pos.y][grid_pos.x] != 'empty') {
+            return;
+        }
+        this.position_grid[grid_pos.y][grid_pos.x] = 'sheep';
+        
         let pixel_pos = gridToPixel(grid_pos);
-        this.grid[grid_pos.y][grid_pos.x] = 'sheep';
-        this.sprites.create(pixel_pos.x-2,pixel_pos.y-4, this.spritekey)    
+        this.sprite_grid[grid_pos.y][grid_pos.x] = this.game.add.sprite(
+            pixel_pos.x-2,
+            pixel_pos.y-4,
+            this.spritekey
+        );
+        this.sprite_grid[grid_pos.y][grid_pos.x].setDepth(grid_pos.y);
+
     }
 
     remove_sheep(grid_pos) {
-        this.grid[grid_pos.y][grid_pos.x] = 'empty';
+        if (this.position_grid[grid_pos.y][grid_pos.x] == 'empty') {
+            return;
+        }
+
+        this.position_grid[grid_pos.y][grid_pos.x] = 'empty';
+        this.sprite_grid[grid_pos.y][grid_pos.x].destroy();   
+
     }
 }
 
