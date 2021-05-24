@@ -70,10 +70,10 @@ function create () {
     this.left_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
     this.up_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
     this.down_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
-    this.w_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
-    this.b_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B)
-    this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R)
-
+    this.w_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    this.b_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+    this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.c_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
 }
 
 
@@ -99,6 +99,9 @@ function update () {
     }
     if (Phaser.Input.Keyboard.JustDown(this.r_key)) {
         this.game_sheeps.remove_sheep(this.grass_select_tile.grid_pos);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.c_key)) {
+        this.naks.createMatch();
     }
 
     this.grass_select_tile.update()
@@ -330,6 +333,14 @@ class Nakama {
 
         await this.socket.connect(this.session);
         console.log("socket connected");
+
+        this.socket.onmatchpresence = (matchpresence) => {
+            console.info("Received match presence update:", matchpresence);
+        }
+
+        this.socket.onmatchdata = (data) => {
+            console.log("data received: ", data.data)
+        }
     }
 
     createMatch = async() => {
@@ -339,6 +350,12 @@ class Nakama {
 
     joinMatch = async(id) => {
         this.match = await this.socket.joinMatch(id);
+    }
+
+    send_sheep = async() => {
+        let opcode = 1;
+        let data = "sheep";
+        this.socket.sendMatchState(this.match.match_id, opcode, data);
     }
 
 }
