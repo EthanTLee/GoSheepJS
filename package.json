@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@heroiclabs/nakama-js": "^2.1.5",
+    "http-server": "^0.12.3",
+    "jsx-dom": "^7.0.0-beta.5",
     "phaser": "^3.54.0",
     "uuid": "^3.4.0"
   }

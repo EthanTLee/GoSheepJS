@@ -2,6 +2,7 @@ import {Client} from "@heroiclabs/nakama-js";
 import { v4 as uuidv4 } from 'uuid';
 import Phaser from 'phaser';
 
+ 
 
 var config = {
     type: Phaser.Auto,
@@ -21,7 +22,6 @@ var game = new Phaser.Game(config);
 
 
 
-
 function preload () {
 
     this.naks = new Nakama();
@@ -32,6 +32,8 @@ function preload () {
     this.load.image('selectTile', 'assets/redograss_sel.png')
     this.load.image('whiteSheep', 'assets/white_sheep.png')
     this.load.image('blackSheep', 'assets/black_sheep.png')
+    this.load.image('pinkSheep', 'assets/pinku_sheep.png')
+
     console.log("preload finished");
 }
 
@@ -72,8 +74,12 @@ function create () {
     this.down_arrow = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
     this.w_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.b_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+    this.p_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+
     this.r_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
     this.c_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+    this.s_key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+
 }
 
 
@@ -97,11 +103,17 @@ function update () {
     if (Phaser.Input.Keyboard.JustDown(this.b_key)) {
         this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos, 'blackSheep');
     }
+    if (Phaser.Input.Keyboard.JustDown(this.p_key)) {
+        this.game_sheeps.place_sheep(this.grass_select_tile.grid_pos, 'pinkSheep');
+    }
     if (Phaser.Input.Keyboard.JustDown(this.r_key)) {
         this.game_sheeps.remove_sheep(this.grass_select_tile.grid_pos);
     }
     if (Phaser.Input.Keyboard.JustDown(this.c_key)) {
-        this.naks.createMatch();
+        this.naks.startMatchMaker();
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.s_key)) {
+        this.naks.send_sheep();
     }
 
     this.grass_select_tile.update()
@@ -323,6 +335,7 @@ class Nakama {
         this.session;
         this.socket;
         this.match;
+        this.ticket;
     }
     initiate = async() => {
         const create = true;    
@@ -334,6 +347,10 @@ class Nakama {
         await this.socket.connect(this.session);
         console.log("socket connected");
 
+        const payload = {"pp": "poopoo"};
+        const rpcid = "print_test";
+        const poo = await this.client.rpc(this.session, rpcid, payload);
+
         this.socket.onmatchpresence = (matchpresence) => {
             console.info("Received match presence update:", matchpresence);
         }
@@ -342,10 +359,22 @@ class Nakama {
             console.log("data received: ", data.data)
         }
     }
+    startMatchMaker = async() => {
 
-    createMatch = async() => {
-        this.match = await this.socket.createMatch();
-        console.log("match id: ", this.match.match_id);
+        this.socket.onmatchmakermatched = (matched) => {
+            console.info("Received MatchmakerMatched message: ", matched);
+            console.info("Matched opponents: ", matched.users);
+
+            const matchId = null;
+            this.match = this.socket.joinMatch(matchId, matched.token);
+            console.log("match: ", this.match.value);
+        };
+          
+        const query = "*";
+        const minCount = 2;
+        const maxCount = 2;
+
+        this.ticket = this.socket.addMatchmaker(query, minCount, maxCount);
     }
 
     joinMatch = async(id) => {
@@ -353,6 +382,7 @@ class Nakama {
     }
 
     send_sheep = async() => {
+        console.log(this.match.match_id)
         let opcode = 1;
         let data = "sheep";
         this.socket.sendMatchState(this.match.match_id, opcode, data);
