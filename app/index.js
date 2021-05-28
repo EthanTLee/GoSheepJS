@@ -2,7 +2,8 @@ import {Client} from "@heroiclabs/nakama-js";
 import { v4 as uuidv4 } from 'uuid';
 import Phaser from 'phaser';
 
- 
+let gameScene = new Phaser.Scene('GameScene');
+let menuScene = new Phaser.Scene('MenuScene');
 
 var config = {
     type: Phaser.Auto,
@@ -11,21 +12,17 @@ var config = {
     pixelArt: true,
     zoom: 4,
     
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scene: [menuScene, gameScene]
 };
 
 var game = new Phaser.Game(config);
 
 
 
-function preload () {
+gameScene.preload = function () {
 
-    this.naks = new Nakama();
-    this.naks.initiate();
+    //this.naks = new Nakama();
+    //this.naks.initiate();
 
     this.load.image('sky','assets/sky.png');
     this.load.image('tile', 'assets/redograss.png');
@@ -38,7 +35,7 @@ function preload () {
 }
 
 
-function create () {   
+gameScene.create = function () {   
     
     this.game_grid_size = new grid_size(3,3);
 
@@ -83,7 +80,7 @@ function create () {
 }
 
 
-function update () {
+gameScene.update = function () {
 
     if (Phaser.Input.Keyboard.JustDown(this.right_arrow)) {
         this.grass_select_tile.grid_pos.y += 1
