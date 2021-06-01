@@ -1,7 +1,8 @@
 
 import Phaser from 'phaser';
 import gameScene from './gameScene.js'
-import menuScene from './menuScene.js'
+import menu from './menuScene.js'
+import create_menu from './createMenuScene.js'
 
 
 var config = {
@@ -11,7 +12,9 @@ var config = {
     pixelArt: true,
     zoom: 4,
     
-    scene: [gameScene, menuScene]
+    scene: [menu, create_menu, gameScene]
+    //scene: [gameScene, menu]
+
 };
 
 

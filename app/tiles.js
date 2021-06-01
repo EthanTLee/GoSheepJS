@@ -1,14 +1,10 @@
-import {grid_size, pixel_pos, grid_pos, create_grid, gridToPixel} from './helpers.js'
+import {grid_size, pixel_pos, grid_pos, create_grid, gridToPixel} from './positionHelpers.js'
 
 export default class tiles {
     constructor(spritekey, grid_size, game) {
         this.game = game;
         this.grid_size = grid_size;
         this.spritekey = spritekey;
-        this.sprites;
-    }
-    create() {
-
         this.sprites = this.game.add.group();
 
         for (let j = 0; j < this.grid_size.h; j ++) {
