@@ -56,10 +56,10 @@ create_menu.update = function () {
     if (Phaser.Input.Keyboard.JustDown(this.keys.z)) {
         switch(this.select_index) {
             case 0:
-                this.scene.start("GameScene", {num_play: 2});
+                this.scene.start("WaitingRoom", {num_play: 2});
                 break;
             case 1:
-                this.scene.start("GameScene", {num_play: 3});
+                this.scene.start("WaitingRoom", {num_play: 3});
                 break;
         }
         

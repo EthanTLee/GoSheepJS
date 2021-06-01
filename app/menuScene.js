@@ -50,6 +50,8 @@ menu.update = function () {
             case 0:
                 this.scene.start("CreateMenu");
                 break;
+            case 1:
+                this.scene.start("JoinMenu");
         }
     }
 

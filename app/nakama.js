@@ -33,27 +33,28 @@ export default class Nakama {
             console.log("data received: ", data.data)
         }
     }
-    startMatchMaker = async() => {
-
-        this.socket.onmatchmakermatched = (matched) => {
-            console.info("Received MatchmakerMatched message: ", matched);
-            console.info("Matched opponents: ", matched.users);
-
-            const matchId = null;
-            this.match = this.socket.joinMatch(matchId, matched.token);
-            console.log("match: ", this.match.value);
-        };
-          
-        const query = "*";
-        const minCount = 2;
-        const maxCount = 2;
-
-        this.ticket = this.socket.addMatchmaker(query, minCount, maxCount);
+    createAuthMatch = async() => {
+        const payload = {};
+        const rpcid = "create_match";
+        let id = await this.client.rpc(this.session, rpcid, payload);
+        console.log("match created with id: ", id.payload.matchid)
+        return id.payload.matchid;
+        
     }
 
     joinMatch = async(id) => {
         this.match = await this.socket.joinMatch(id);
+        console.log("joined match with id: ", id)
     }
+
+    listMatches = async() => {
+        const payload = {};
+        const rpcid = "list_matches";
+        let matches = await this.client.rpc(this.session, rpcid, payload);
+        console.log("match list: ", matches.payload.matches);
+        return matches.payload.matches;
+    }
+
 
     send_sheep = async() => {
         console.log(this.match.match_id)
